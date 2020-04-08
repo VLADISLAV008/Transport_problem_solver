@@ -1,19 +1,24 @@
 package view;
 
 import calculation.Solver;
+import constants.Messages;
 import entities.Answer;
+import exceptions.AppException;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -36,6 +41,10 @@ public class Controller {
                 solver = getSolver(file);
                 fileName.setText("Uploaded file: " + file.getName());
             } catch (FileNotFoundException e) {
+                showError(new AppException(Messages.FILE_NOT_LOADED, e));
+                e.printStackTrace();
+            } catch (Exception e) {
+                showError(new AppException(Messages.INVALID_FORMAT, e));
                 e.printStackTrace();
             }
         }
@@ -83,6 +92,10 @@ public class Controller {
     }
 
     public void solveProblem(ActionEvent actionEvent) {
+        if (solver == null) {
+            showError(new AppException(Messages.FILE_NOT_UPLOADED, new Exception()));
+            return;
+        }
         Answer answer = solver.getAnswer();
         String cost = Double.toString(answer.getTotalCosts());
         int length = cost.length();
@@ -105,5 +118,28 @@ public class Controller {
                 transportMatrix.add(label, j, i);
             }
         }
+    }
+
+    private void showError(AppException e) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(e.getMessage());
+        alert.showAndWait();
+    }
+
+    public void helpAction() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        alert.getDialogPane().setMinWidth(600);
+        alert.setTitle("Description");
+        alert.setHeaderText(null);
+        alert.setContentText(Messages.HELP_MESSAGE);
+        alert.showAndWait();
+    }
+
+    public void exit(ActionEvent actionEvent) {
+        Platform.exit();
+        System.exit(0);
     }
 }

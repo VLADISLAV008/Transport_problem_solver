@@ -1,13 +1,12 @@
 package calculation;
 
 import entities.Answer;
+import entities.Vertex;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
 
 /**
  * Solver. A class solving a general transport problem of an arbitrary type.
@@ -84,11 +83,40 @@ public class Solver {
     }
 
     /**
+     * The function generates an array storing the basicity of the cell of the transportation plan.
+     *
+     * @param plan initial transportation plan
+     * @return Array defining basic cells of the initial plan.
+     */
+    private boolean[][] baseCellsOfInitialPlan(double[][] plan) {
+        boolean[][] base = new boolean[productionCapacity.size()][powerConsumption.size()];
+        for (int i = 0; i < productionCapacity.size(); i++) {
+            for (int j = 0; j < powerConsumption.size(); j++) {
+                if (plan[i][j] != 0) {
+                    base[i][j] = true;
+                } else {
+                    if (j > 0 && plan[i][j - 1] != 0) {
+                        double sum = 0;
+                        for (int k = i + 1; k < productionCapacity.size(); k++) {
+                            sum += plan[k][j - 1];
+                        }
+                        if (sum == 0) {
+                            base[i][j] = true;
+                        }
+                    }
+                }
+            }
+        }
+        return base;
+    }
+
+    /**
      * Calculation of transportation plan potentials.
      *
-     * @param plan transportation plan
+     * @param baseCells Array defining basic cells.
+     *                  baseCells[i][j] = true if cell (i,j) is base.
      */
-    private void calculationPotentials(double[][] plan) {
+    private void calculationPotentials(boolean[][] baseCells) {
         if (productionPotentials == null) {
             productionPotentials = new double[productionCapacity.size()];
         }
@@ -105,10 +133,10 @@ public class Solver {
         while (!queue.isEmpty()) {
             consumerIndex = queue.remove();
             for (int i = 0; i < productionCapacity.size(); i++) {
-                if (plan[i][consumerIndex] != 0) {
+                if (baseCells[i][consumerIndex]) {
                     productionPotentials[i] = rates[i][consumerIndex] - consumerPotentials[consumerIndex];
                     for (int j = 0; j < powerConsumption.size(); j++) {
-                        if (plan[i][j] != 0 && !usedConsumerIndex[j]) {
+                        if (baseCells[i][j] && !usedConsumerIndex[j]) {
                             consumerPotentials[j] = rates[i][j] - productionPotentials[i];
                             queue.add(j);
                             usedConsumerIndex[j] = true;
@@ -124,11 +152,10 @@ public class Solver {
      *
      * @param plan transportation plan
      */
-    private void optimizationPlan(double[][] plan) {
+    private void optimizationPlan(double[][] plan, boolean[][] baseCells) {
         boolean optimal = false;
-        optimization:
         while (!optimal) {
-            calculationPotentials(plan);
+            calculationPotentials(baseCells);
             int productionIndex = -1;
             int consumerIndex = -1;
             double minValue = 0;
@@ -136,7 +163,7 @@ public class Solver {
             for (int i = 0; i < productionCapacity.size(); i++) {
                 for (int j = 0; j < powerConsumption.size(); j++) {
                     double value = rates[i][j] - productionPotentials[i] - consumerPotentials[j];
-                    if (value < 0 & minValue > value) {
+                    if (value < 0 && minValue > value) {
                         minValue = value;
                         productionIndex = i;
                         consumerIndex = j;
@@ -145,18 +172,76 @@ public class Solver {
             }
 
             if (productionIndex != -1) {
-                for (int i = 0; i < productionCapacity.size(); i++) {
-                    if (plan[i][consumerIndex] != 0) {
-                        for (int j = 0; j < powerConsumption.size(); j++) {
-                            if (plan[i][j] != 0 & plan[productionIndex][j] != 0) {
-                                double min = Math.min(plan[i][consumerIndex], plan[productionIndex][j]);
-                                plan[i][consumerIndex] -= min;
-                                plan[productionIndex][j] -= min;
-                                plan[i][j] += min;
-                                plan[productionIndex][consumerIndex] += min;
-                                continue optimization;
+                ArrayList<Vertex> positive = new ArrayList<>();
+                ArrayList<Vertex> negative = new ArrayList<>();
+
+                boolean[][] used = new boolean[productionCapacity.size()][powerConsumption.size()];
+                Vertex[][] parent = new Vertex[productionCapacity.size()][powerConsumption.size()];
+                Queue<Vertex> queue = new LinkedList<>();
+
+                Vertex startV = new Vertex(productionIndex, consumerIndex);
+
+                queue.add(startV);
+                used[productionIndex][consumerIndex] = true;
+                while (!queue.isEmpty()) {
+                    Vertex v = queue.remove();
+                    if (!v.equals(startV)) {
+                        for (int i = 0; i < productionCapacity.size(); i++) {
+                            if (!used[i][v.getColumn()] && baseCells[i][v.getColumn()] && i != v.getRow()) {
+                                Vertex vertexTo = new Vertex(i, v.getColumn());
+                                used[i][v.getColumn()] = true;
+                                parent[i][v.getColumn()] = v;
+                                queue.add(vertexTo);
                             }
                         }
+                    }
+                    for (int i = 0; i < powerConsumption.size(); i++) {
+                        if (!used[v.getRow()][i] && baseCells[v.getRow()][i] && i != v.getColumn()) {
+                            Vertex vertexTo = new Vertex(v.getRow(), i);
+                            used[v.getRow()][i] = true;
+                            parent[v.getRow()][i] = v;
+                            queue.add(vertexTo);
+                        }
+                    }
+                }
+                positive.add(startV);
+                for (int i = 0; i < productionCapacity.size(); i++) {
+                    if (baseCells[i][consumerIndex] && parent[i][consumerIndex] != null &&
+                            parent[i][consumerIndex].getColumn() != startV.getColumn()) {
+                        Vertex currentV = new Vertex(i, consumerIndex);
+
+                        boolean positiveSign = false;
+                        while (!parent[currentV.getRow()][currentV.getColumn()].equals(startV)) {
+                            if (positiveSign) {
+                                positive.add(currentV);
+                            } else {
+                                negative.add(currentV);
+                            }
+                            positiveSign = !positiveSign;
+                            currentV = parent[currentV.getRow()][currentV.getColumn()];
+                        }
+                        negative.add(currentV);
+
+                        double min = Double.MAX_VALUE;
+                        for (Vertex vertex : negative) {
+                            if (min > plan[vertex.getRow()][vertex.getColumn()]) {
+                                min = plan[vertex.getRow()][vertex.getColumn()];
+                            }
+                        }
+
+                        boolean changeBaseCells = false;
+                        for (Vertex vertex : negative) {
+                            plan[vertex.getRow()][vertex.getColumn()] -= min;
+                            if (plan[vertex.getRow()][vertex.getColumn()] == 0 && !changeBaseCells) {
+                                baseCells[vertex.getRow()][vertex.getColumn()] = false;
+                                changeBaseCells = true;
+                            }
+                        }
+                        for (Vertex vertex : positive) {
+                            plan[vertex.getRow()][vertex.getColumn()] += min;
+                        }
+                        baseCells[startV.getRow()][startV.getColumn()] = true;
+                        break;
                     }
                 }
             } else {
@@ -197,23 +282,26 @@ public class Solver {
             numberConsumption--;
         }
 
-        double[][] newPlan = new double[numberProduction][numberConsumption];
-        for (int i = 0; i < numberProduction; i++) {
-            for (int j = 0; j < numberConsumption; j++) {
-                newPlan[i][j] = plan[i][j];
+        if (fictitiousConsumer || fictitiousProduction) {
+            double[][] newPlan = new double[numberProduction][numberConsumption];
+            for (int i = 0; i < numberProduction; i++) {
+                if (numberConsumption >= 0) {
+                    System.arraycopy(plan[i], 0, newPlan[i], 0, numberConsumption);
+                }
             }
+            return newPlan;
         }
-        return newPlan;
+        return plan;
     }
 
     /**
-     *
      * @return object Answer which consists of the transport matrix and the total cost of transportation
      */
     public Answer getAnswer() {
         reduceToClosedProblem();
         double[][] plan = getInitialPlan();
-        optimizationPlan(plan);
+        boolean[][] baseCells = baseCellsOfInitialPlan(plan);
+        optimizationPlan(plan, baseCells);
         plan = removeFictitiousNode(plan);
         double totalCost = totalCostCalculation(plan);
         return new Answer(plan, totalCost);

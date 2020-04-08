@@ -11,9 +11,9 @@
     <top>
         <MenuBar>
             <Menu text="File">
-                <MenuItem text="Open file"/>
+                <MenuItem text="Open file" onAction="#loadFile"/>
                 <SeparatorMenuItem/>
-                <MenuItem text="Exit"/>
+                <MenuItem text="Exit" onAction="#exit"/>
             </Menu>
             <Menu text="Language">
                 <fx:define>
@@ -22,7 +22,10 @@
                 <RadioMenuItem text="Russia" toggleGroup="$group"/>
                 <RadioMenuItem text="English" selected="true" toggleGroup="$group"/>
             </Menu>
-            <Menu text="Help"/>
+            <Menu text="Help">
+                <MenuItem text="About the program" onAction="#helpAction"/>
+                <MenuItem text="Reference"/>
+            </Menu>
         </MenuBar>
     </top>
 
