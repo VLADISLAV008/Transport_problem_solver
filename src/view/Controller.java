@@ -10,7 +10,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
-import javafx.scene.control.Menu;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.stage.FileChooser;
@@ -39,7 +38,7 @@ public class Controller {
         if (file != null) {
             try {
                 solver = getSolver(file);
-                fileName.setText("Uploaded file: " + file.getName());
+                fileName.setText("Uploaded file:\n" + file.getName());
             } catch (FileNotFoundException e) {
                 showError(new AppException(Messages.FILE_NOT_LOADED, e));
                 e.printStackTrace();
@@ -129,17 +128,30 @@ public class Controller {
     }
 
     public void helpAction() {
+        informationDialog(Messages.HELP_MESSAGE);
+    }
+
+    public void infoProgramme() {
+        informationDialog(Messages.INFO_PROGRAMME);
+    }
+
+    public void informationDialog(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
         alert.getDialogPane().setMinWidth(600);
         alert.setTitle("Description");
         alert.setHeaderText(null);
-        alert.setContentText(Messages.HELP_MESSAGE);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
     public void exit(ActionEvent actionEvent) {
         Platform.exit();
         System.exit(0);
+    }
+
+    public void deleteFile(ActionEvent actionEvent) {
+        fileName.setText("File not uploaded");
+        solver = null;
     }
 }

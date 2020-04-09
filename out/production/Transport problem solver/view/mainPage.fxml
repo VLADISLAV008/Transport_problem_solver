@@ -2,75 +2,129 @@
 
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-            xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="view.Controller">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.Controller">
     <top>
         <MenuBar>
             <Menu text="File">
-                <MenuItem text="Open file" onAction="#loadFile"/>
-                <SeparatorMenuItem/>
-                <MenuItem text="Exit" onAction="#exit"/>
+                <MenuItem onAction="#loadFile" text="Open file" />
+                <SeparatorMenuItem />
+                <MenuItem onAction="#exit" text="Exit" />
             </Menu>
             <Menu text="Language">
                 <fx:define>
-                    <ToggleGroup fx:id="group"/>
+                    <ToggleGroup fx:id="group" />
                 </fx:define>
                 <RadioMenuItem text="Russia" toggleGroup="$group"/>
                 <RadioMenuItem text="English" selected="true" toggleGroup="$group"/>
             </Menu>
             <Menu text="Help">
-                <MenuItem text="About the program" onAction="#helpAction"/>
-                <MenuItem text="Reference"/>
+                <MenuItem onAction="#helpAction" text="Help" />
+                <MenuItem onAction="#infoProgramme" text="About" />
             </Menu>
         </MenuBar>
     </top>
 
     <center>
-        <GridPane hgap="20" vgap="15">
-            <padding>
-                <Insets bottom="10" left="10" right="10" top="10"/>
-            </padding>
-            <Label fx:id="fileName" text="File not uploaded" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <GridPane.halignment>center</GridPane.halignment>
-                <font>
-                    <Font name="System Italic" size="12.0"/>
-                </font>
-            </Label>
+        <GridPane>
+            <FlowPane orientation="VERTICAL" style="-fx-background-color: #8c8c8c" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                <GridPane hgap="20" prefHeight="268.0" prefWidth="234.0" vgap="50">
+                    <padding>
+                        <Insets left="2" top="10" />
+                    </padding>
+                    <Label fx:id="fileName" lineSpacing="2.0" text="File not uploaded" textAlignment="CENTER" textFill="#e50808" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <GridPane.halignment>center</GridPane.halignment>
+                        <font>
+                            <Font name="System Italic" size="16.0" />
+                        </font>
+                    </Label>
 
-            <Button onAction="#loadFile" text="Load file" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                <GridPane.halignment>center</GridPane.halignment>
-            </Button>
+                    <Button onAction="#deleteFile" prefHeight="22.0" prefWidth="22.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                        <graphic>
+                            <ImageView>
+                                <Image url="/res/delete.png" requestedWidth="22" requestedHeight="22"/>
+                            </ImageView>
+                        </graphic>
+                    </Button>
 
-            <Button onAction="#solveProblem" text="Solve" GridPane.columnIndex="2" GridPane.rowIndex="3">
-                <GridPane.halignment>center</GridPane.halignment>
-            </Button>
+                    <Button onAction="#loadFile" text="Load file" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="2">
+                        <GridPane.halignment>center</GridPane.halignment>
+                        <font>
+                            <Font size="16.0" />
+                        </font>
+                    </Button>
 
-            <Label text="Problem solve" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="4">
-                <padding>
-                    <Insets bottom="5" top="5"/>
-                </padding>
-                <GridPane.halignment>center</GridPane.halignment>
-                <font>
-                    <Font name="System Bold" size="12.0"/>
-                </font>
-            </Label>
+                    <Button onAction="#solveProblem" text="Solve" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                        <GridPane.halignment>center</GridPane.halignment>
+                        <font>
+                            <Font size="16.0" />
+                        </font>
+                    </Button>
+                    <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints prefWidth="150.0" />
+                        <ColumnConstraints />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints minHeight="-Infinity" />
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
+                </GridPane>
+            </FlowPane>
 
-            <Label text="Total cost of transportation: " textAlignment="CENTER" GridPane.columnIndex="1"
-                   GridPane.rowIndex="5">
-                <GridPane.halignment>center</GridPane.halignment>
-            </Label>
-            <Label fx:id="totalCost" GridPane.columnIndex="2" GridPane.rowIndex="5"/>
+            <FlowPane orientation="VERTICAL" prefHeight="833.0" prefWidth="576.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                <GridPane hgap="20" vgap="50">
+                    <Label text="Problem solve" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                        <padding>
+                            <Insets bottom="5" top="5" />
+                        </padding>
+                        <GridPane.halignment>center</GridPane.halignment>
+                        <font>
+                            <Font name="System Bold" size="20.0" />
+                        </font>
+                    </Label>
 
-            <Label text="Transport matrix of transportation: " textAlignment="CENTER" GridPane.columnIndex="1"
-                   GridPane.rowIndex="6">
-                <GridPane.halignment>center</GridPane.halignment>
-            </Label>
-            <GridPane fx:id="transportMatrix" hgap="10" vgap="10" GridPane.columnIndex="2" GridPane.columnSpan="4"
-                      GridPane.rowIndex="6"/>
+                    <Label text="Total cost of transportation: " textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <GridPane.halignment>center</GridPane.halignment>
+                        <font>
+                            <Font size="16.0" />
+                        </font>
+                    </Label>
+                    <Label fx:id="totalCost" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+
+                    <Label text="Transport matrix of transportation: " textAlignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                        <GridPane.halignment>center</GridPane.halignment>
+                        <font>
+                            <Font size="16.0" />
+                        </font>
+                    </Label>
+                    <GridPane fx:id="transportMatrix" hgap="10" vgap="10" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                    <columnConstraints>
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                        <ColumnConstraints />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                        <RowConstraints />
+                    </rowConstraints>
+                </GridPane>
+            </FlowPane>
+            <columnConstraints>
+                <ColumnConstraints />
+                <ColumnConstraints />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints />
+            </rowConstraints>
         </GridPane>
     </center>
 </BorderPane>
