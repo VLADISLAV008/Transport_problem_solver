@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="Transport_problem_solver.jnlp">
+  <information>
+    <title>Transport problem solver</title>
+    <vendor>Unknown</vendor>
+    <description>Transport problem solver</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="Transport_problem_solver.jar" size="294316" download="eager" />
+  </resources>
+  <jfx:javafx-desc  width="860" height="460" main-class="view.Main"  name="Transport problem solver" />
+  <update check="background"/>
+</jnlp>

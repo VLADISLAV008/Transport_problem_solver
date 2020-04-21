@@ -1,0 +1,43 @@
+<html><head>
+  <SCRIPT src="http://java.com/js/dtjava.js"></SCRIPT>
+<script>
+    function launchApplication(jnlpfile) {
+        dtjava.launch(            {
+                url : 'Transport_problem_solver.jnlp'
+            },
+            {
+                javafx : '8.0+'
+            },
+            {}
+        );
+        return false;
+    }
+</script>
+
+<script>
+    function javafxEmbedTransport_problem_solver_id() {
+        dtjava.embed(
+            {
+                id : 'Transport_problem_solver_id',
+                url : 'Transport_problem_solver.jnlp',
+                placeholder : 'javafx-app-placeholder',
+                width : '860',
+                height : '460'
+            },
+            {
+                javafx : '8.0+'
+            },
+            {}
+        );
+    }
+    <!-- Embed FX application into web page once page is loaded -->
+    dtjava.addOnloadCallback(javafxEmbedTransport_problem_solver_id);
+</script>
+
+</head><body>
+<h2>Test page for <b>Transport problem solver</b></h2>
+  <b>Webstart:</b> <a href='Transport_problem_solver.jnlp' onclick="return launchApplication('Transport_problem_solver.jnlp');">click to launch this app as webstart</a><br><hr><br>
+
+  <!-- Applet will be inserted here -->
+  <div id='javafx-app-placeholder'></div>
+</body></html>
